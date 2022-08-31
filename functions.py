@@ -7,7 +7,6 @@ def train_model(writer, model, optimizer, loss_fn, train_x, train_y, test_x, tes
 
     # Run SGD with fixed stepsize for specified number of epochs
     for epoch in tqdm(range(num_epochs+1)):
-
         # Compute generalization error at specified intervals
         if epoch in plot_incs:
             test_output = model(test_x)
@@ -15,7 +14,7 @@ def train_model(writer, model, optimizer, loss_fn, train_x, train_y, test_x, tes
             loss = loss_fn(test_output, test_y,Wt)
             writer.add_scalar("Test loss", loss.item(), epoch)
             writer.add_scalar("Test error", torch.sum(torch.abs(0.5 * (torch.sign(test_output) - test_y))).item()/test_size, epoch)
-            W = (((model.fc1.weight).detach()).numpy())# returns m x d matrix
+            W = (((model.fc1.weight).detach()).numpy()) # returns m x d matrix
             U, D, Vt = np.linalg.svd(W, full_matrices=False)
             corrs = Vt@w_star
             weighted_corrs = D@Vt@w_star
@@ -39,6 +38,10 @@ def train_model(writer, model, optimizer, loss_fn, train_x, train_y, test_x, tes
         loss.backward()
         optimizer.step()
 
+        if epoch == num_epochs:
+            final_test_error = torch.sum(torch.abs(0.5 * (torch.sign(test_output) - test_y))).item()/test_size
+            final_train_error = torch.sum(torch.abs(0.5 * (torch.sign(output) - train_y))).item()/train_size
+            return model, final_test_error, final_train_error
 
 
 

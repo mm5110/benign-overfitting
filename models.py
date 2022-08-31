@@ -33,13 +33,16 @@ class One_Hidden_Layer_Model_Tanh(nn.Module):
     """
     Class for dense feedforward network with 1 hidden Tanh layer of width m, with fixed linear output layer.
     """
-    def __init__(self, d, m, bias_status=False):
+    def __init__(self, d, m, bias_status=False, train_outer=False):
         super(One_Hidden_Layer_Model_Tanh, self).__init__()
         self.tanh = nn.Tanh()
         self.fc1 = nn.Linear(d, m, bias=bias_status)
         self.fc2 = nn.Linear(m, 1, bias=False)
-        output_weights = (1/m)*torch.ones(m)
-        self.fc2.weight = nn.Parameter(output_weights, requires_grad=False)
+        output_weights = (1 / m) * torch.ones(m)
+        if train_outer == False:
+            self.fc2.weight = nn.Parameter(output_weights, requires_grad=False)
+        else:
+            self.fc2.weight = nn.Parameter(output_weights, requires_grad=True)
 
     def forward(self, x):
         y = self.fc1(x)
